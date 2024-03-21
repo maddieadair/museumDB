@@ -6,16 +6,18 @@ module.exports = {
   theme: {
     extend: {
         colors: {
-            'ivory': '#FFFFF5',
+            'chalk': '#FFFFFC',
             'cinnabar': '#dc4c3c',
-            'charcoal': '#171717',
+            'obsidian': '#211f20',
+            'gravel': "#717070",
           },
-        backgroundImage: {
-            'hero-giordano': "url('./assets/Luca_Giordano_-_Allegory_of_Prudence_-_Google_Art_Project.jpg')",
+          backgroundImage: {
+            art: "url('./assets/images/Luks.png')",
           },
         fontFamily: {
-            'hk-grotesk': ['Hanken Grotesk', 'sans-serif'],
-            'goudy-sm': ['Sorts Mill Goudy', 'serif'],
+            'fanwoodText': ['Fanwood Text', 'serif'],
+            'inter': ['Inter', 'sans-serif'],
+            'notoSerif': ['Noto Serif', 'serif'],
         }
     },
   },
