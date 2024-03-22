@@ -83,7 +83,7 @@ export default function Tickets() {
           <form className="flex flex-col space-y-12">
             <div className="flex flex-col space-y-20">
               <div className="flex flex-col space-y-10 w-fit">
-                <h2 className="font-fanwoodText text-5xl">Select Date</h2>
+                <h2 className="font-fanwoodText text-5xl">1. Date</h2>
                 <input
                   type="date"
                   id="start"
@@ -98,7 +98,7 @@ export default function Tickets() {
               </div>
 
               <div className="flex flex-col space-y-10 w-fit">
-                <h2 className="font-fanwoodText text-5xl">Select Time</h2>
+                <h2 className="font-fanwoodText text-5xl">2. Time</h2>
                 <div className="flex flex-row space-x-4">
                   {times.map((number, index) => (
                     <p
@@ -119,7 +119,7 @@ export default function Tickets() {
               </div>
 
               <div className="flex flex-col space-y-10 w-fit">
-                <h2 className="font-fanwoodText text-5xl">Ticket(s) for...</h2>
+                <h2 className="font-fanwoodText text-5xl">3. Ticket(s) for...</h2>
                 <div className="flex flex-row space-x-4">
                   <p
                     className={`rounded-full border border-obsidian w-fit py-2 px-6 ${
@@ -170,7 +170,7 @@ export default function Tickets() {
 
               <div className="flex flex-row gap-x-24">
                 <div className="flex flex-col space-y-10 w-1/2 ">
-                  <h2 className="font-fanwoodText text-5xl">Select Tickets</h2>
+                  <h2 className="font-fanwoodText text-5xl">4. Select Tickets</h2>
                   <div className="flex flex-col divide-y divide-obsidian">
                     <div className="flex flex-row py-6 justify-between items-center">
                       <div className="flex flex-col gap-y-2 w-1/3">
