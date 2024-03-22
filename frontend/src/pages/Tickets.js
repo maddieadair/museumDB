@@ -1,7 +1,6 @@
 import { React, useState, useEffect } from "react";
 import UserNavbar from "../components/UserNavbar";
 import Angelico from "../assets/images/1200px-Fra_Angelico_-_Saint_Anthony_Abbot_Shunning_the_Mass_of_Gold_-_Google_Art_Project.jpg";
-import { IoArrowForwardCircleOutline } from "react-icons/io5";
 import Footer from "../components/Footer";
 import { LuPlus } from "react-icons/lu";
 import { LuMinus } from "react-icons/lu";
