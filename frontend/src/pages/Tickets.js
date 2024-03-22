@@ -7,7 +7,7 @@ import { LuMinus } from "react-icons/lu";
 
 export default function Tickets() {
   const currDate = new Date().toJSON().slice(0, 10);
-  const [date, setDate] = useState();
+  const [date, setDate] = useState(currDate);
 
   const times = [
     "10:00 AM",
@@ -20,7 +20,7 @@ export default function Tickets() {
     "5:00 PM",
   ];
 
-  const [time, setTime] = useState();
+  const [time, setTime] = useState("10:00 AM");
 
   const [numChild, setNumChild] = useState(0);
   const [numYouth, setNumYouth] = useState(0);
@@ -34,7 +34,7 @@ export default function Tickets() {
   const [showExhibitions, setShowExhibitions] = useState(false);
   const [chosenExhibit, setChosenExhibit] = useState(null);
 
-  const [option, setOption] = useState("");
+  const [option, setOption] = useState("Permanent Collections");
 
   useEffect(() => {
     let sum =
@@ -82,7 +82,7 @@ export default function Tickets() {
 
           <form className="flex flex-col space-y-12">
             <div className="flex flex-col space-y-20">
-              <div className="flex flex-col space-y-10 w-fit">
+              <div className="flex flex-col space-y-10 w-1/2">
                 <h2 className="font-fanwoodText text-5xl">1. Date</h2>
                 <input
                   type="date"
@@ -93,7 +93,7 @@ export default function Tickets() {
                   onChange={(e) => setDate(e.target.value)}
                   min={new Date().toJSON().slice(0, 10)}
                   max="2024-06-30"
-                  className="border border-obsidian p-2 rounded-md"
+                  className="border border-obsidian p-2 rounded-md w-1/2"
                 />
               </div>
 
@@ -103,7 +103,7 @@ export default function Tickets() {
                   {times.map((number, index) => (
                     <p
                       key={index}
-                      className={`rounded-full border border-obsidian w-fit py-2 px-6 ${
+                      className={`rounded-md border border-obsidian w-fit py-2 px-6 ${
                         time === number
                           ? "bg-obsidian text-chalk"
                           : "hover:bg-rose-100 hover:text-obsidian"
@@ -122,7 +122,7 @@ export default function Tickets() {
                 <h2 className="font-fanwoodText text-5xl">3. Ticket(s) for...</h2>
                 <div className="flex flex-row space-x-4">
                   <p
-                    className={`rounded-full border border-obsidian w-fit py-2 px-6 ${
+                    className={`rounded-md border border-obsidian w-fit py-2 px-6 ${
                       option === "Permanent Collections"
                         ? "bg-obsidian text-chalk"
                         : "hover:bg-rose-100 hover:text-obsidian"
@@ -136,7 +136,7 @@ export default function Tickets() {
                     Permanent Collections
                   </p>
                   <p
-                    className={`rounded-full border border-obsidian w-fit py-2 px-6 ${
+                    className={`rounded-md border border-obsidian w-fit py-2 px-6 ${
                       option === "Special Exhibition"
                         ? "bg-obsidian text-chalk"
                         : "hover:bg-rose-100 hover:text-obsidian"
