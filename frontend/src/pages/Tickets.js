@@ -4,6 +4,7 @@ import Angelico from "../assets/images/1200px-Fra_Angelico_-_Saint_Anthony_Abbot
 import Footer from "../components/Footer";
 import { LuPlus } from "react-icons/lu";
 import { LuMinus } from "react-icons/lu";
+import axios from 'axios';
 
 export default function Tickets() {
   const currDate = new Date().toJSON().slice(0, 10);
@@ -19,6 +20,12 @@ export default function Tickets() {
     "4:00 PM",
     "5:00 PM",
   ];
+
+  const testSubmit = async () => {
+    axios.get("https://reqres.in/api/users/2")
+    .then(res => console.log(res))
+    .catch(err => console.log(err))
+  }
 
   const [time, setTime] = useState("10:00 AM");
 
@@ -355,9 +362,10 @@ export default function Tickets() {
 
             <button
               type="button"
+              onClick={testSubmit}
               className="bg-obsidian text-chalk rounded-md p-4 font-bold text-xl hover:bg-cinnabar transition-all duration-500 ease-in-out"
             >
-              Buy Tickets
+              Buy Tickets 
             </button>
           </form>
         </div>
