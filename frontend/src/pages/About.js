@@ -27,7 +27,7 @@ export default function About() {
           <div className="flex flex-row gap-x-20">
             <div className="flex flex-col gap-y-8 w-1/2">
               <div className="flex flex-col gap-y-4">
-                <h1 className="font-fanwoodText text-3xl">Our history</h1>
+                <h1 className="font-fanwoodText text-3xl">Our History</h1>
                 <p>
                   Founded in 1900, the Museum of Fine Arts, Houston, is one of
                   the 10 largest museums in the United States. 
