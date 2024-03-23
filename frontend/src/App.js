@@ -4,6 +4,7 @@ import React from "react";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Donate from "./pages/Donate";
+import Shop from "./pages/Shop";
 import AdminLogin from "./pages/AdminLogin";
 import AdminSignup from "./pages/AdminSignup";
 import UserLogin from "./pages/UserLogin";
@@ -40,6 +41,7 @@ function App() {
           <Route path="/" element={<Home />}></Route>
           <Route path="/about" element={<About />}></Route>
           <Route path="/donate" element={<Donate />}></Route>
+          <Route path="/shop" element={<Shop />}></Route>
 
           {/* User Routes */}
           <Route path="/user-login" element={<UserLogin />}></Route>
