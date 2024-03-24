@@ -29,6 +29,10 @@ import AdminDonations from "./pages/AdminDonations";
 import AdminShop from "./pages/AdminShop";
 import AdminTickets from "./pages/AdminTickets";
 
+import Collections from "./pages/Collections";
+import Artworks from "./pages/Artworks";
+
+
 
 
 
@@ -42,6 +46,9 @@ function App() {
           <Route path="/about" element={<About />}></Route>
           <Route path="/donate" element={<Donate />}></Route>
           <Route path="/shop" element={<Shop />}></Route>
+          <Route path="/Collections" element={<Collections />}></Route>
+          <Route path="/Artworks"element={<Artworks />}></Route>
+
 
           {/* User Routes */}
           <Route path="/user-login" element={<UserLogin />}></Route>
