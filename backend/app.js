@@ -28,11 +28,12 @@ pool.query('SELECT * FROM gifts', (err, results) => {
   console.log('Query results:', results);
 });
 */
-
-
+const http = require('http');
+const url = require('url');
 
 const server = http.createServer((req, res) => {
   const { pathname } = parse(req.url);
+  const reqUrl = url.parse(req.url, true);
 
   console.log("Incoming request:", req.method, pathname); // Log incoming requests
 
@@ -106,8 +107,48 @@ const server = http.createServer((req, res) => {
         res.end('Invalid JSON data');
       }
     });
-  }
-  else {
+  }  if (reqUrl.pathname === '/api/tickets' && req.method === 'POST') {
+    let body = '';
+
+    req.on('data', chunk => {
+        body += chunk.toString();
+    });
+
+    req.on('end', () => {
+        try {
+            const ticketInfo = JSON.parse(body);
+
+            const query = `INSERT INTO tickets (Total_Price, Transaction_Date, Ticket_Date, Ticket_Time, Customer_ID, Num_Child_Tickets, Num_Teen_Tickets, Num_Adult_Tickets, Num_Senior_Tickets, Exhibition_Name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const values = [
+                ticketInfo.totalPrice,
+                new Date().toISOString().slice(0, 10), 
+                ticketInfo.ticketDate,
+                ticketInfo.ticketTime,
+                ticketInfo.userId,
+                ticketInfo.numChild,
+                ticketInfo.numYouth,
+                ticketInfo.numAdult,
+                ticketInfo.numSenior,
+                ticketInfo.selectedMuseum
+            ];
+
+            db.query(query, values, (error, results) => {
+                if (error) {
+                    console.error('Error inserting data:', error);
+                    res.writeHead(500, {'Content-Type': 'application/json'});
+                    res.end(JSON.stringify({ message: 'Failed to submit ticket', error }));
+                    return;
+                }
+                res.writeHead(201, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify({ message: 'Ticket submitted successfully', ticketId: results.insertId }));
+            });
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+            res.writeHead(400, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({ message: 'Bad request' }));
+        }
+    });
+} else {
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ message: 'Route not found' }));
   }
@@ -161,6 +202,498 @@ const fetchGiftItems = (req, res) => {
     }
   });
 };
+
+// ------------------------------ DONATIONS ------------------------------
+
+// GET
+const fetchDonations = (req, res) => {
+  pool.query("SELECT donations.Donation_ID, donations.Amount_Donated, donations.Donation_Note, donations.Donation_Date, donations.Donor_ID, users.User_First_Name, users.User_Last_Name FROM donations, users WHERE donations.Donor_ID = users.User_ID", (error, results) => {
+    if (error) {
+      console.error("Error fetching donations:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Internal server error" }));
+    } else {
+      console.log("Sending donations:", results); // Log the fetched gift items
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(results));
+    }
+  });
+};
+
+// POST
+const addDonation = (req, res) => {
+  let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("POST request body:", data); // Log the request body
+      const { Amount_Donated, Donation_Note, Donation_Date, Donor_ID } = data;
+      pool.query(
+        "INSERT INTO donations(Amount_Donated, Donation_Note, Donation_Date, Donor_ID) VALUES (?)",
+        [data],
+        (error, results) => {
+          if (error) {
+            console.error("Error adding donation:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Donation added successfully" }));
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+// PUT
+const updateDonation = (req, res) => {
+  let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("Update request body:", data); // Log the request body
+      const {
+        Donation_ID,
+        Amount_Donated,
+        Donation_Note,
+        Donation_Date,
+        Donor_ID,
+      } = data;
+      pool.query(
+        "UPDATE donations SET Donation_ID=?, Amount_Donated=?, Donation_Note=?, Donation_Date=?, Donor_ID=? WHERE Donation_ID=?",
+        [
+          Donation_ID,
+          Amount_Donated,
+          Donation_Note,
+          Donation_Date,
+          Donor_ID,
+          Donation_ID,
+        ],
+        (error, results) => {
+          if (error) {
+            console.error("Error updating donations:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(
+              JSON.stringify({ message: "Donations updated successfully" }),
+            );
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+// DELETE
+const deleteDonation = (req, res) => {
+    let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("POST request body:", data); // Log the request body
+      const { Donation_ID } = data;
+      pool.query(
+        "DELETE FROM donations WHERE Donation_ID=?",
+        [Donation_ID],
+        (error, results) => {
+          if (error) {
+            console.error("Error deleting donation:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Donation added successfully" }));
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+
+// ------------------------------ USERS ------------------------------
+
+// GET
+const fetchUsers = (req, res) => {
+  pool.query("SELECT * FROM users", (error, results) => {
+    if (error) {
+      console.error("Error fetching users:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Internal server error" }));
+    } else {
+      console.log("Sending users:", results); // Log the fetched gift items
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(results));
+    }
+  });
+};
+
+// GET
+const getUser = (req, res) => {
+    pool.query("SELECT * FROM users WHERE User_ID = ?", (error, results) => {
+      if (error) {
+        console.error("Error fetching users:", error);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Internal server error" }));
+      } else {
+        console.log("Sending users:", results); // Log the fetched gift items
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(results));
+      }
+    });
+  };
+
+// POST
+const addUser = (req, res) => {
+  let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("POST request body:", data); // Log the request body
+      const {
+        User_First_Name,
+        User_Last_Name,
+        User_Email,
+        User_Password,
+        User_Address,
+        User_City,
+        User_State,
+        User_Zipcode,
+        isAdmin
+    } = data;
+    pool.query(
+      "INSERT INTO users(User_First_Name, User_Last_Name, User_Email, User_Password, User_Address, User_City, User_State, User_Zipcode, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        User_First_Name,
+        User_Last_Name,
+        User_Email,
+        User_Password,
+        User_Address,
+        User_City,
+        User_State,
+        User_Zipcode,
+        isAdmin],
+
+
+        (error, results) => {
+          if (error) {
+            console.error("Error adding user:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "User added successfully" }));
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+// PUT
+const updateUser = (req, res) => {
+  let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("Update request body:", data); // Log the request body
+      const {
+        User_ID,
+        User_First_Name,
+        User_Last_Name,
+        User_Email,
+        User_Password,
+        User_Address,
+        User_City,
+        User_State,
+        User_Zipcode,
+        isAdmin,
+      } = data;
+      pool.query(
+        "UPDATE users SET User_First_Name=?, User_Last_Name=?, User_Email=?, User_Password=?, User_Address=?, User_City=?, User_State=?, User_Zipcode=?, isAdmin = ? WHERE User_ID = ?",
+        [
+          User_ID,
+          User_First_Name,
+          User_Last_Name,
+          User_Email,
+          User_Password,
+          User_Address,
+          User_City,
+          User_State,
+          User_Zipcode,
+          isAdmin,
+        ],
+        (error, results) => {
+          if (error) {
+            console.error("Error updating user:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "User updated successfully" }));
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+// DELETE
+const deleteUser = (req, res) => {
+    let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("POST request body:", data); // Log the request body
+      const { User_ID } = data;
+      pool.query(
+        "DELETE FROM users WHERE User_ID=?",
+        [User_ID],
+        (error, results) => {
+          if (error) {
+            console.error("Error deleting user:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "User deleted successfully" }));
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+// ------------------------------ DEPARTMENTS ------------------------------
+
+// GET
+const fetchDepartments = (req, res) => {
+  pool.query("SELECT * FROM department", (error, results) => {
+    if (error) {
+      console.error("Error fetching departments:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Internal server error" }));
+    } else {
+      console.log("Sending departemnts:", results); // Log the fetched gift items
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(results));
+    }
+  });
+};
+
+// POST
+const addDepartment = (req, res) => {
+  let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("POST request body:", data); // Log the request body
+      const {
+        department_name,
+        manager_start_date,
+        department_manager_id,
+        Department_Description,
+      } = data;
+      console.log(data.department_name);
+      pool.query(
+        `INSERT INTO department VALUES (?, ?, ?, ?)`,
+        [
+          department_name,
+          manager_start_date,
+          department_manager_id,
+          Department_Description,
+        ],
+        (error, results) => {
+          if (error) {
+            console.error("Error adding department:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(
+              JSON.stringify({ message: "Department added successfully" }),
+            );
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+// PUT
+const updateDepartment = (req, res) => {
+  let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("Update request body:", data); // Log the request body
+      const {
+        department_name,
+        manager_start_date,
+        department_manager_id,
+        Department_Description,
+      } = data;
+      pool.query(
+        "UPDATE department SET department_name=?, manager_start_date=?, department_manager_id=?, Department_Description=? WHERE department_name=?",
+        [
+          department_name,
+          manager_start_date,
+          department_manager_id,
+          Department_Description,
+          department_name,
+        ],
+        (error, results) => {
+          if (error) {
+            console.error("Error updating department:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(
+              JSON.stringify({ message: "Department updated successfully" }),
+            );
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+// DELETE
+const deleteDepartment = (req, res) => {};
+
+
+// ------------------------------ TICKETS ------------------------------
+
+// GET
+const fetchTickets = (req, res) => {
+    pool.query("SELECT *, SUM(Num_Child_Tickets + Num_Teen_Tickets + Num_Adult_Tickets + Num_Senior_Tickets) AS TotalCount FROM tickets GROUP BY TicketTransaction_ID;", (error, results) => {
+      if (error) {
+        console.error("Error fetching tickets:", error);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Internal server error" }));
+      } else {
+        console.log("Sending tickets:", results); // Log the fetched gift items
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(results));
+      }
+    });
+  };
+
+
+  // DELETE
+const deleteTicket = (req, res) => {
+    let body = "";
+
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", () => {
+    try {
+      const data = JSON.parse(body);
+      console.log("POST request body:", data); // Log the request body
+      const { TicketTransaction_ID } = data;
+      pool.query(
+        "DELETE FROM tickets WHERE TicketTransaction_ID=?",
+        [TicketTransaction_ID],
+        (error, results) => {
+          if (error) {
+            console.error("Error deleting ticket:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal server error" }));
+          } else {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Ticket deleted successfully" }));
+          }
+        },
+      );
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Invalid request body" }));
+    }
+  });
+};
+
+
+
+
 
 
 

@@ -18,6 +18,7 @@ import AccountPurchaseDetails from "./components/AccountPurchaseDetails";
 import AccountDonationDetails from "./components/AccountDonationDetails";
 import AccountTicketDetails from "./components/AccountTicketDetails";
 
+import Ticket from "./pages/Tickets";
 import AdminHome from "./pages/AdminHome";
 import AdminAccount from "./pages/AdminAccount";
 import AdminEmployees from "./pages/AdminEmployees";
@@ -48,6 +49,7 @@ function App() {
           <Route path="/shop" element={<Shop />}></Route>
           <Route path="/Collections" element={<Collections />}></Route>
           <Route path="/Artworks"element={<Artworks />}></Route>
+          <Route path="/Tickets"element={<Ticket />}></Route>
 
 
           {/* User Routes */}
