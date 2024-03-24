@@ -4,9 +4,21 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "server": "node app.js",
+    "client": "npm run start --prefix ../frontend",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
   },
+  "proxy": "http://localhost:4000/",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "mysql": "^2.18.1",
+    "concurrently": "^5.3.0"
+  }
 }
+

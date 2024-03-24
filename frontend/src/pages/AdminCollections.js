@@ -1,37 +1,26 @@
 import AdminNavbar from "../components/AdminNavbar";
 import AdminBar from "../components/AdminBar";
 import { LuPencil } from "react-icons/lu";
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import { IoIosAdd } from "react-icons/io";
 import { MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
 import { MdOutlineDelete } from "react-icons/md";
 import { MdOutlineCheckBox } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 
+
 export default function AdminCollections() {
-  const [stateArr, setStateArr] = useState([
-    {
-      name: "Modern Art",
-      mfname: "John",
-      mlname: "Doe",
-      mID: "123456",
-      mStartDate: "2024-02-09",
-      desc: "Art about Modern Art",
-    },
-    {
-      name: "European Art",
-      mfname: "Jane",
-      mlname: "Kate",
-      mID: "2222456",
-      mStartDate: "2020-09-02",
-      desc: "Art about European Art",
-    },
-  ]);
+ 
+
+
+  const [stateArr, setStateArr] = useState([]);
+
 
   const [currIndex, setCurrentIndex] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [openNew, setOpenNew] = useState(false);
+
 
   const [name, setName] = useState("");
   const [mfname, setMfname] = useState("");
@@ -40,31 +29,100 @@ export default function AdminCollections() {
   const [mStartDate, setMStartDate] = useState("");
   const [desc, setDesc] = useState("");
 
+
+  useEffect(() => {
+    fetchCollectionData();
+  }, []);
+
+
+  const fetchCollectionData = async () => {
+    try {
+      const response = await fetch('/admin/collections');
+      if (!response.ok) {
+        throw new Error("Failed to fetch collections data");
+      }
+      const data = await response.json();
+      const mappedData = data.map(collection => ({
+        name: collection.collection_name,
+        mfname: collection.User_First_Name,
+        mlname: collection.User_Last_Name,
+        mID: collection.User_ID,
+        mStartDate: collection.DOB,
+        desc: collection.collections_department,
+      }));
+      setStateArr(mappedData);
+    } catch (error) {
+      console.error("Error fetching collections data:", error);
+    }
+  };
+
+
+
+
+
+
   const removeDept = () => {
     setStateArr(stateArr.filter((p, i) => currIndex !== i));
     setCurrentIndex(null);
   };
 
-  const addDept = () => {
-    setStateArr([
-      ...stateArr,
-      {
-        name: name,
-        mfname: mfname,
-        mlname: mlname,
-        mID: mID,
-        mStartDate: mStartDate,
-        desc: desc,
-      },
-    ]);
-    setName("");
-    setMfname("");
-    setMlname("");
-    setMID("");
-    setMStartDate("");
-    setDesc("");
+
+  const addDept = async () => {
+    try {
+      const requestData = {
+        collection_name: name,
+        collection_curator_ID: mID,
+        collections_department: desc,
+      };
+      console.log('JSON data sent to backend:', JSON.stringify(requestData));
+      const response = await fetch('/admin/collections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to add collection");
+      }
+
+
+      const data = await response.json();
+    // Update stateArr with the newly added collection
+    setStateArr([...stateArr, data]);
+    // Clear input fields and close the new collection form
+    clearFields();
     setOpenNew(false);
+  } catch (error) {
+    console.error("Error adding collection:", error);
+  }
+    //   const response = await fetch('/admin/collections', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       name: name,
+    //       mID: mID,
+    //       desc: desc,
+    //     }),
+    //   });
+    //   if (!response.ok) {
+    //     throw new Error("Failed to add collection");
+    //   }
+    //   const data = await response.json();
+    //   // Update stateArr with the newly added collection
+    //   setStateArr([...stateArr, data]);
+    //   // Clear input fields and close the new collection form
+    //   clearFields();
+    //   setOpenNew(false);
+    // } catch (error) {
+    //   console.error("Error adding collection:", error);
+    // }
   };
+
+
+
 
   const clearFields = () => {
     setName("");
@@ -75,12 +133,14 @@ export default function AdminCollections() {
     setDesc("");
   };
 
+
   const handleChange = (e) => {
     let { name, value } = e.target;
     const newArr = [...stateArr];
     newArr[currIndex][name] = value;
     setStateArr(newArr);
   };
+
 
   return (
     <div className="bg-[#F7f2f3] min-h-screen text-slate-700 font-inter">
@@ -100,6 +160,7 @@ export default function AdminCollections() {
               <IoIosAdd className="size-6" />
               <p>Add New Collection</p>
             </button>
+
 
             <div
               className={`${
@@ -138,8 +199,8 @@ export default function AdminCollections() {
               <p className="w-1/6 ">Manager First Name</p>
               <p className="w-1/6 ">Manager Last Name</p>
               <p className="w-1/6 ">Manager ID</p>
-              <p className="w-1/6 ">Manager Start Date</p>
-              <p className="w-1/6 ">Description</p>
+              <p className="w-1/6 ">Manager DOB</p>
+              <p className="w-1/6 ">Department</p>
             </div>
             {stateArr.map((dept, id) => (
               <div key={id} className="flex flex-row gap-x-6 p-6 group">
@@ -166,6 +227,7 @@ export default function AdminCollections() {
         </div>
       </div>
 
+
       {openNew ? (
         <div className="bg-black fixed h-screen w-screen z-30 top-0 left-0 bg-opacity-45 justify-center items-center flex overflow-hidden">
           <form className="bg-white rounded-3xl h-fit w-1/2 shadow-md flex flex-col">
@@ -188,7 +250,7 @@ export default function AdminCollections() {
                     className="shadow-inner border border-slate-200 rounded-md px-2 py-1"
                   ></input>
                 </div>
-                <div className="flex flex-row justify-between items-center p-4">
+                {/* <div className="flex flex-row justify-between items-center p-4">
                   <p className="font-bold">Manager First Name</p>
                   <input
                     type="text"
@@ -197,8 +259,8 @@ export default function AdminCollections() {
                     onChange={(e) => setMfname(e.target.value)}
                     className="shadow-inner border border-slate-200 rounded-md px-2 py-1"
                   ></input>
-                </div>
-                <div className="flex flex-row justify-between items-center p-4">
+                </div> */}
+                {/* <div className="flex flex-row justify-between items-center p-4">
                   <p className="font-bold">Manager Last Name</p>
                   <input
                     type="text"
@@ -207,7 +269,7 @@ export default function AdminCollections() {
                     onChange={(e) => setMlname(e.target.value)}
                     className="shadow-inner border border-slate-200 rounded-md px-2 py-1"
                   ></input>
-                </div>
+                </div> */}
                 <div className="flex flex-row justify-between items-center p-4">
                   <p className="font-bold"> Manager ID</p>
                   <input
@@ -218,7 +280,7 @@ export default function AdminCollections() {
                     className="shadow-inner border border-slate-200 rounded-md px-2 py-1"
                   ></input>
                 </div>
-                <div className="flex flex-row justify-between items-center p-4">
+                {/* <div className="flex flex-row justify-between items-center p-4">
                   <p className="font-bold">Manager Start Date</p>
                   <input
                     type="date"
@@ -227,7 +289,7 @@ export default function AdminCollections() {
                     onChange={(e) => setMStartDate(e.target.value)}
                     className="shadow-inner border border-slate-200 rounded-md px-2 py-1"
                   ></input>
-                </div>
+                </div> */}
                 <div className="flex flex-row justify-between items-center p-4">
                   <p className="font-bold">Description</p>
                   <input
@@ -241,6 +303,7 @@ export default function AdminCollections() {
               </div>
             </div>
 
+
             <button
               type="button"
               className="p-4 bg-gray-200 rounded-b-3xl hover:bg-rose-100 hover:text-rose-500"
@@ -251,6 +314,7 @@ export default function AdminCollections() {
           </form>
         </div>
       ) : null}
+
 
       {openEdit || openView ? (
         <div className="bg-black fixed h-screen w-screen z-30 top-0 left-0 bg-opacity-45 justify-center items-center flex overflow-hidden">
@@ -307,7 +371,7 @@ export default function AdminCollections() {
                     ></input>
                   </div>
                   <div className="flex flex-row justify-between items-center p-4">
-                    <p className="font-bold">Manager Start Date</p>
+                    <p className="font-bold">Manager Date of Brith</p>
                     <input
                       type="date"
                       name="mStartDate"
@@ -329,6 +393,7 @@ export default function AdminCollections() {
                 </div>
               </div>
 
+
               <button
                 type="button"
                 className="p-4 bg-gray-200 rounded-b-3xl hover:bg-rose-100 hover:text-rose-500"
@@ -341,6 +406,7 @@ export default function AdminCollections() {
               </button>
             </form>
           ) : null}
+
 
           {openView ? (
             <div className="bg-white rounded-3xl h-fit w-1/2 shadow-md flex flex-col">
@@ -371,6 +437,7 @@ export default function AdminCollections() {
                 </div>
               </div>
 
+
               <button
                 type="button"
                 className="p-4 bg-gray-200 rounded-b-3xl hover:bg-rose-100 hover:text-rose-500"
@@ -388,3 +455,6 @@ export default function AdminCollections() {
     </div>
   );
 }
+
+
+
