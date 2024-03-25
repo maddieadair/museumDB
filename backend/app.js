@@ -51,7 +51,7 @@ const server = http.createServer((req, res) => {
   }
     else if (pathname === "/api/update-gift-items" && req.method === "PUT") {
     updateGiftItems(req, res);
-  } else if (pathname === "/api/gift-items" && req.method === "GET") {
+  } else if (pathname === "/gift-items" && req.method === "GET") {
     fetchGiftItems(req, res);
   } else if (pathname === "/api/donations" && req.method === "GET") {
     fetchDonations(req, res);
