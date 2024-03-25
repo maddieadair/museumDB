@@ -25,9 +25,9 @@ const server = http.createServer((req, res) => {
         }
 
         // Get ALl Users
-        else if (req.url === "/users") {
+        else if (req.url === "/gift-items") {
             db.query(
-                "SELECT * FROM users",
+                "SELECT * FROM gifts",
                 (error, result) => {
                     if (error) {
                         res.writeHead(500, { "Content-Type": "application/json" });
