@@ -12,6 +12,7 @@ const db = mysql.createConnection({
 
 // Create A Server
 const server = http.createServer((req, res) => {
+    
     // Handle Cors Function To Allow Axios
     handleCors(req, res);
 
@@ -56,7 +57,7 @@ const handleCors = (req, res) => {
 };
 
 // Set Up Server To Listen For Requests From Port 3001
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
 });
