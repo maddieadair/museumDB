@@ -18,7 +18,7 @@ export default function ShopStore() {
   const fetchGiftItems = () => {
     // Make a GET request to fetch gift items from backend
         // Make sure you're using the correct endpoint URL to fetch gift items
-      axios.get("/gift-items")
+      axios.get("https://museum-db-685cb96aee8e.herokuapp.com/gift-items")
           .then(response => {
               console.log("Response from backend:", response.data); // Log the data received from backend
               setGiftItems(response.data); // Set giftItems state with fetched data
@@ -28,32 +28,32 @@ export default function ShopStore() {
           });
     };
 
-  // Function to update gift items
-  const updateGiftItems = (itemId, newStock, newSold) => {
-    axios.post("/api/update-gift-items", { itemId, newStock, newSold })
-      .then(response => {
-        console.log(response.data.message); // Log success message
-        // You may want to update state or perform other actions after successful update
-      })
-      .catch(error => {
-        console.error("Error updating gift items:", error);
-        // Handle error
-      });
-  };
+//   // Function to update gift items
+//   const updateGiftItems = (itemId, newStock, newSold) => {
+//     axios.post("/api/update-gift-items", { itemId, newStock, newSold })
+//       .then(response => {
+//         console.log(response.data.message); // Log success message
+//         // You may want to update state or perform other actions after successful update
+//       })
+//       .catch(error => {
+//         console.error("Error updating gift items:", error);
+//         // Handle error
+//       });
+//   };
 
-  // Function to handle stock update button click
-  const handleStockUpdate = (itemId, newStock) => {
-    // Example: Assuming new sold quantity is increased by 1 for demonstration
-    const newSold = giftItems.find(item => item.gift_index === itemId).gift_numSold + 1;
-    updateGiftItems(itemId, newStock, newSold);
-  };
+//   // Function to handle stock update button click
+//   const handleStockUpdate = (itemId, newStock) => {
+//     // Example: Assuming new sold quantity is increased by 1 for demonstration
+//     const newSold = giftItems.find(item => item.gift_index === itemId).gift_numSold + 1;
+//     updateGiftItems(itemId, newStock, newSold);
+//   };
 
-  // Function to handle sale update button click
-  const handleSaleUpdate = (itemId, newSold) => {
-    // Example: Assuming new stock quantity is decreased by 1 for demonstration
-    const newStock = giftItems.find(item => item.gift_index === itemId).gift_currStock - 1;
-    updateGiftItems(itemId, newStock, newSold);
-  };
+//   // Function to handle sale update button click
+//   const handleSaleUpdate = (itemId, newSold) => {
+//     // Example: Assuming new stock quantity is decreased by 1 for demonstration
+//     const newStock = giftItems.find(item => item.gift_index === itemId).gift_currStock - 1;
+//     updateGiftItems(itemId, newStock, newSold);
+//   };
 
   return (
     <div className="flex flex-col px-16 py-24 gap-y-16 font-inter border-b">
@@ -70,9 +70,9 @@ export default function ShopStore() {
               </div>
               <div className="h-1/2 p-2 flex flex-col gap-y-4">
                 <h4 className="font-bold">{item.gift_name}</h4>
-                <button onClick={() => handleStockUpdate(item.gift_index, item.gift_currStock)}>Current Stock: {item.gift_currStock}</button>
-                <button onClick={() => handleSaleUpdate(item.gift_index, item.gift_numSold)}>Number Sold: {item.gift_numSold}</button>
-                <button onClick>Price: ${item.gift_price}</button>
+                <button >Current Stock: {item.gift_currStock}</button>
+                <button >Number Sold: {item.gift_numSold}</button>
+                <button >Price: ${item.gift_price}</button>
               </div>
             </div> 
           ))}
