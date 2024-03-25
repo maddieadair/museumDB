@@ -2,98 +2,89 @@ const http = require("http");
 const { parse } = require("url");
 const mysql = require("mysql");
 
+// "proxy": "http://localhost:4000",
+
 const pool = mysql.createPool({
-    host: "mysql-museum.mysql.database.azure.com",
-    user: "admin01",
-    password: "bananafish1!",
-    database: "museum",
-    dateStrings: true,
-  });
-
-
-  pool.getConnection((err, connection) => {
-  if (err) {
-    console.error("Error connecting to database:", err);
-    return;
-  }
-  console.log("Connected to database!");
-  // Release the connection
-  connection.release();
+  host: "mysql-museum.mysql.database.azure.com",
+  user: "admin01",
+  password: "bananafish1!",
+  database: "museum",
+  dateStrings: true,
 });
 
-const server = http.createServer((req, res) => {
-    handleCors(req, res);
-    // res.setHeader('Access-Control-Allow-Credentials', true)
-    // // res.setHeader('Access-Control-Allow-Origin', '*')
-    // res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-    // res.setHeader('Access-Control-Allow-Methods', 'GET,DELETE,POST,PUT')
-    // res.setHeader(
-    //   'Access-Control-Allow-Headers',
-    //   'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    // )
-  const { pathname } = parse(req.url);
+// const pool = mysql.createPool({
+//     host: process.env.DB_HOST,
+//     user: process.env.USER,
+//     password: process.env.DB,
+//     database: "museum",
+//     dateStrings: true,
+//   });
 
-  console.log("Incoming request:", req.method, pathname); // Log incoming requests
+const server = http.createServer((req, res) => {
+  handleCors(req, res);
+
+  console.log("Incoming request:", req.method, req.url); // Log incoming requests
   if (req.url === "/") {
-    res.setHeader('Content-Type', 'text/html');
-    res.write('<html><head><title>Hello, Worlds!</title></head><body><h1>Hello, World!</h1></body></html>');
+    res.setHeader("Content-Type", "text/html");
+    res.write(
+      "<html><head><title>Hello, Worlds!</title></head><body><h1>Hello, World!</h1></body></html>",
+    );
     res.end();
-}
-    else if (pathname === "/gift-items" && req.method === "PUT") {
+  } else if (req.url === "/api/update-gift-items" && req.method === "PUT") {
     updateGiftItems(req, res);
-  } else if (pathname === "/gift-items" && req.method === "GET") {
+  } else if (req.url === "/api/gift-items" && req.method === "GET") {
     fetchGiftItems(req, res);
-  } else if (pathname === "/donations" && req.method === "GET") {
+  } else if (req.url === "/api/donations" && req.method === "GET") {
     fetchDonations(req, res);
-  } else if (pathname === "/donations" && req.method === "PUT") {
+  } else if (req.url === "/api/donations" && req.method === "PUT") {
     updateDonation(req, res);
-  } else if (pathname === "/donations" && req.method === "POST") {
+  } else if (req.url === "/apis/donations" && req.method === "POST") {
     addDonation(req, res);
-  } else if (pathname === "/users" && req.method === "GET") {
+  } else if (req.url === "/api/users" && req.method === "GET") {
     fetchUsers(req, res);
-  } else if (pathname === "/users" && req.method === "POST") {
+  } else if (req.url === "/api/users" && req.method === "POST") {
     addUser(req, res);
-  } else if (pathname === "/users" && req.method === "PUT") {
+  } else if (req.url === "/api/users" && req.method === "PUT") {
     updateUser(req, res);
-  } else if (pathname === "/users" && req.method === "DELETE") {
+  } else if (req.url === "/api/users" && req.method === "DELETE") {
     deleteUser(req, res);
-  } else if (pathname === "/getUser" && req.method === "GET") {
+  } else if (req.url === "/api/getUser" && req.method === "GET") {
     getUser(req, res);
-  } else if (pathname === "/departments" && req.method === "GET") {
+  } else if (req.url === "/api/departments" && req.method === "GET") {
     fetchDepartments(req, res);
-  } else if (pathname === "/departments" && req.method === "POST") {
+  } else if (req.url === "/api/departments" && req.method === "POST") {
     addDepartment(req, res);
-  } else if (pathname === "/departments" && req.method === "PUT") {
+  } else if (req.url === "/api/departments" && req.method === "PUT") {
     updateDepartment(req, res);
-  } else if (pathname === "/departments" && req.method === "DELETE") {
+  } else if (req.url === "/api/departments" && req.method === "DELETE") {
     deleteDepartment(req, res);
-  } else if (pathname === "/collections" && req.method === "GET") {
+  } else if (req.url === "/api/collections" && req.method === "GET") {
     fetchCollections(req, res);
-  } else if (pathname === "/collections" && req.method === "POST") {
+  } else if (req.url === "/api/collections" && req.method === "POST") {
     addCollection(req, res);
-  } else if (pathname === "/collections" && req.method === "PUT") {
+  } else if (req.url === "/api/collections" && req.method === "PUT") {
     updateCollection(req, res);
-  } else if (pathname === "/collections" && req.method === "DELETE") {
+  } else if (req.url === "/api/collections" && req.method === "DELETE") {
     deleteCollection(req, res);
-  } else if (pathname === "/employees" && req.method === "GET") {
+  } else if (req.url === "/api/employees" && req.method === "GET") {
     fetchEmployees(req, res);
-  } else if (pathname === "/employees" && req.method === "POST") {
+  } else if (req.url === "/api/employees" && req.method === "POST") {
     addEmployee(req, res);
-  } else if (pathname === "/employees" && req.method === "PUT") {
+  } else if (req.url === "/api/employees" && req.method === "PUT") {
     updateEmployee(req, res);
-  } else if (pathname === "/employees" && req.method === "DELETE") {
+  } else if (req.url === "/api/employees" && req.method === "DELETE") {
     deleteEmployee(req, res);
-  } else if (pathname === "/exhibitions" && req.method === "GET") {
+  } else if (req.url === "/api/exhibitions" && req.method === "GET") {
     fetchExhibitions(req, res);
-  } else if (pathname === "/exhibitions" && req.method === "POST") {
+  } else if (req.url === "/api/exhibitions" && req.method === "POST") {
     addExhibition(req, res);
-  } else if (pathname === "/exhibitions" && req.method === "PUT") {
+  } else if (req.url === "/api/exhibitions" && req.method === "PUT") {
     updateExhibition(req, res);
-  } else if (pathname === "/exhibitions" && req.method === "DELETE") {
+  } else if (req.url === "/api/exhibitions" && req.method === "DELETE") {
     deleteExhibition(req, res);
-  } else if (pathname === "/tickets" && req.method === "GET") {
+  } else if (req.url === "/api/tickets" && req.method === "GET") {
     fetchTickets(req, res);
-  } else if (pathname === "/tickets" && req.method === "DELETE") {
+  } else if (req.url === "/api/tickets" && req.method === "DELETE") {
     deleteTicket(req, res);
   } else {
     res.writeHead(404, { "Content-Type": "application/json" });
@@ -1028,23 +1019,20 @@ const deleteEmployee = (req, res) => {
   });
 };
 
-
-
-
-
 const handleCors = (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
+  if (req.method === "OPTIONS") {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
 };
 
-const PORT = process.env.PORT || 400;
+// Set Up Server To Listen For Requests From Port 3001
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
+  console.log(`Server is listening on port ${PORT}`);
 });
