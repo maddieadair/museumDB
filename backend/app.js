@@ -25,6 +25,8 @@ const server = http.createServer((req, res) => {
     
     // Handle Cors Function To Allow Axios
     handleCors(req, res);
+    
+    const { pathname } = parse(req.url);
 
     // GET Requests 
     if (req.method === "GET") {
@@ -35,7 +37,7 @@ const server = http.createServer((req, res) => {
         }
 
         // Get ALl Users
-        else if (req.url === "/gift-items") {
+        else if (pathname === "/gift-items") {
             db.query("SELECT * FROM gifts", (error, results) => {
                 if (error) {
                   console.error("Error fetching gift items:", error);
