@@ -10,6 +10,16 @@ const db = mysql.createPool({
     database: "museum",
 });
 
+db.getConnection((err, connection) => {
+    if (err) {
+      console.error("Error connecting to database:", err);
+      return;
+    }
+    console.log("Connected to database!");
+    // Release the connection
+    connection.release();
+  });
+
 // Create A Server
 const server = http.createServer((req, res) => {
     
@@ -26,18 +36,17 @@ const server = http.createServer((req, res) => {
 
         // Get ALl Users
         else if (req.url === "/gift-items") {
-            db.query(
-                "SELECT * FROM gifts",
-                (error, result) => {
-                    if (error) {
-                        res.writeHead(500, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ error: error }));
-                    } else {
-                        res.writeHead(200, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify(result));
-                    }
+            db.query("SELECT * FROM gifts", (error, results) => {
+                if (error) {
+                  console.error("Error fetching gift items:", error);
+                  res.writeHead(500, { "Content-Type": "application/json" });
+                  res.end(JSON.stringify({ message: "Internal server error" }));
+                } else {
+                  console.log("Sending gift items:", results); // Log the fetched gift items
+                  res.writeHead(200, { "Content-Type": "application/json" });
+                  res.end(JSON.stringify(results));
                 }
-            );
+              });
         }
         
     } 
