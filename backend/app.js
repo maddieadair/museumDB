@@ -2,15 +2,23 @@ const http = require("http");
 const { parse } = require("url");
 const mysql = require("mysql");
 
-const port = process.env.PORT || 4000
+const port = process.env.PORT || 4000;
 
 const pool = mysql.createPool({
-  host: "mysql-museum.mysql.database.azure.com",
-  user: "admin01",
-  password: "bananafish1!",
-  database: "museum",
-  dateStrings: true,
-});
+    host: "mysql-museum.mysql.database.azure.com",
+    user: "admin01",
+    password: "bananafish1!",
+    database: "museum",
+    dateStrings: true,
+  });
+
+// const pool = mysql.createPool({
+//     host: process.env.DB_HOST,
+//     user: process.env.USER,
+//     password: process.env.DB,
+//     database: "museum",
+//     dateStrings: true,
+//   });
 
 pool.getConnection((err, connection) => {
   if (err) {
@@ -23,24 +31,28 @@ pool.getConnection((err, connection) => {
 });
 
 const server = http.createServer((req, res) => {
+    // res.setHeader('Access-Control-Allow-Credentials', true)
+    // // res.setHeader('Access-Control-Allow-Origin', '*')
+    // res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    // res.setHeader('Access-Control-Allow-Methods', 'GET,DELETE,POST,PUT')
+    // res.setHeader(
+    //   'Access-Control-Allow-Headers',
+    //   'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    // )
   const { pathname } = parse(req.url);
 
   console.log("Incoming request:", req.method, pathname); // Log incoming requests
 
-  if (pathname === "/gift-items" && req.method === "PUT") {
+    if (pathname === "/api/update-gift-items" && req.method === "PUT") {
     updateGiftItems(req, res);
   } else if (pathname === "/api/gift-items" && req.method === "GET") {
     fetchGiftItems(req, res);
-
-
   } else if (pathname === "/api/donations" && req.method === "GET") {
     fetchDonations(req, res);
   } else if (pathname === "/api/donations" && req.method === "PUT") {
     updateDonation(req, res);
-  } else if (pathname === "/api/donations" && req.method === "POST") {
+  } else if (pathname === "/apis/donations" && req.method === "POST") {
     addDonation(req, res);
-
-
   } else if (pathname === "/api/users" && req.method === "GET") {
     fetchUsers(req, res);
   } else if (pathname === "/api/users" && req.method === "POST") {
@@ -49,10 +61,8 @@ const server = http.createServer((req, res) => {
     updateUser(req, res);
   } else if (pathname === "/api/users" && req.method === "DELETE") {
     deleteUser(req, res);
-} else if (pathname === "/api/getUser" && req.method === "GET") {
+  } else if (pathname === "/api/getUser" && req.method === "GET") {
     getUser(req, res);
-
-
   } else if (pathname === "/api/departments" && req.method === "GET") {
     fetchDepartments(req, res);
   } else if (pathname === "/api/departments" && req.method === "POST") {
@@ -61,8 +71,7 @@ const server = http.createServer((req, res) => {
     updateDepartment(req, res);
   } else if (pathname === "/api/departments" && req.method === "DELETE") {
     deleteDepartment(req, res);
-
-} else if (pathname === "/api/collections" && req.method === "GET") {
+  } else if (pathname === "/api/collections" && req.method === "GET") {
     fetchCollections(req, res);
   } else if (pathname === "/api/collections" && req.method === "POST") {
     addCollection(req, res);
@@ -70,8 +79,7 @@ const server = http.createServer((req, res) => {
     updateCollection(req, res);
   } else if (pathname === "/api/collections" && req.method === "DELETE") {
     deleteCollection(req, res);
-
-} else if (pathname === "/api/employees" && req.method === "GET") {
+  } else if (pathname === "/api/employees" && req.method === "GET") {
     fetchEmployees(req, res);
   } else if (pathname === "/api/employees" && req.method === "POST") {
     addEmployee(req, res);
@@ -79,9 +87,7 @@ const server = http.createServer((req, res) => {
     updateEmployee(req, res);
   } else if (pathname === "/api/employees" && req.method === "DELETE") {
     deleteEmployee(req, res);
-
-
-} else if (pathname === "/api/exhibitions" && req.method === "GET") {
+  } else if (pathname === "/api/exhibitions" && req.method === "GET") {
     fetchExhibitions(req, res);
   } else if (pathname === "/api/exhibitions" && req.method === "POST") {
     addExhibition(req, res);
@@ -89,16 +95,13 @@ const server = http.createServer((req, res) => {
     updateExhibition(req, res);
   } else if (pathname === "/api/exhibitions" && req.method === "DELETE") {
     deleteExhibition(req, res);
-
   } else if (pathname === "/api/tickets" && req.method === "GET") {
     fetchTickets(req, res);
-  }
- else if (pathname === "/api/tickets" && req.method === "DELETE") {
+  } else if (pathname === "/api/tickets" && req.method === "DELETE") {
     deleteTicket(req, res);
-  }
-    else {
+  } else {
     res.writeHead(404, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ message: "Route not found" }));
+    res.end(JSON.stringify({ message: "Route not found. Try again" }));
   }
 });
 
@@ -162,17 +165,20 @@ const fetchGiftItems = (req, res) => {
 
 // GET
 const fetchDonations = (req, res) => {
-  pool.query("SELECT donations.Donation_ID, donations.Amount_Donated, donations.Donation_Note, donations.Donation_Date, donations.Donor_ID, users.User_First_Name, users.User_Last_Name FROM donations, users WHERE donations.Donor_ID = users.User_ID", (error, results) => {
-    if (error) {
-      console.error("Error fetching donations:", error);
-      res.writeHead(500, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ message: "Internal server error" }));
-    } else {
-      console.log("Sending donations:", results); // Log the fetched gift items
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(results));
-    }
-  });
+  pool.query(
+    "SELECT donations.Donation_ID, donations.Amount_Donated, donations.Donation_Note, donations.Donation_Date, donations.Donor_ID, users.User_First_Name, users.User_Last_Name FROM donations, users WHERE donations.Donor_ID = users.User_ID",
+    (error, results) => {
+      if (error) {
+        console.error("Error fetching donations:", error);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Internal server error" }));
+      } else {
+        console.log("Sending donations:", results); // Log the fetched gift items
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(results));
+      }
+    },
+  );
 };
 
 // POST
@@ -262,7 +268,7 @@ const updateDonation = (req, res) => {
 
 // DELETE
 const deleteDonation = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -295,7 +301,6 @@ const deleteDonation = (req, res) => {
   });
 };
 
-
 // ------------------------------ USERS ------------------------------
 
 // GET
@@ -315,18 +320,18 @@ const fetchUsers = (req, res) => {
 
 // GET
 const getUser = (req, res) => {
-    pool.query("SELECT * FROM users WHERE User_ID = ?", (error, results) => {
-      if (error) {
-        console.error("Error fetching users:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Internal server error" }));
-      } else {
-        console.log("Sending users:", results); // Log the fetched gift items
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(results));
-      }
-    });
-  };
+  pool.query("SELECT * FROM users WHERE User_ID = ?", (error, results) => {
+    if (error) {
+      console.error("Error fetching users:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Internal server error" }));
+    } else {
+      console.log("Sending users:", results); // Log the fetched gift items
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(results));
+    }
+  });
+};
 
 // POST
 const addUser = (req, res) => {
@@ -349,21 +354,21 @@ const addUser = (req, res) => {
         User_City,
         User_State,
         User_Zipcode,
-        isAdmin
-    } = data;
-    pool.query(
-      "INSERT INTO users(User_First_Name, User_Last_Name, User_Email, User_Password, User_Address, User_City, User_State, User_Zipcode, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        User_First_Name,
-        User_Last_Name,
-        User_Email,
-        User_Password,
-        User_Address,
-        User_City,
-        User_State,
-        User_Zipcode,
-        isAdmin],
-
+        isAdmin,
+      } = data;
+      pool.query(
+        "INSERT INTO users(User_First_Name, User_Last_Name, User_Email, User_Password, User_Address, User_City, User_State, User_Zipcode, isAdmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          User_First_Name,
+          User_Last_Name,
+          User_Email,
+          User_Password,
+          User_Address,
+          User_City,
+          User_State,
+          User_Zipcode,
+          isAdmin,
+        ],
 
         (error, results) => {
           if (error) {
@@ -443,7 +448,7 @@ const updateUser = (req, res) => {
 
 // DELETE
 const deleteUser = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -592,12 +597,13 @@ const updateDepartment = (req, res) => {
 // DELETE
 const deleteDepartment = (req, res) => {};
 
-
 // ------------------------------ TICKETS ------------------------------
 
 // GET
 const fetchTickets = (req, res) => {
-    pool.query("SELECT *, SUM(Num_Child_Tickets + Num_Teen_Tickets + Num_Adult_Tickets + Num_Senior_Tickets) AS TotalCount FROM tickets GROUP BY TicketTransaction_ID;", (error, results) => {
+  pool.query(
+    "SELECT *, SUM(Num_Child_Tickets + Num_Teen_Tickets + Num_Adult_Tickets + Num_Senior_Tickets) AS TotalCount FROM tickets GROUP BY TicketTransaction_ID;",
+    (error, results) => {
       if (error) {
         console.error("Error fetching tickets:", error);
         res.writeHead(500, { "Content-Type": "application/json" });
@@ -607,13 +613,13 @@ const fetchTickets = (req, res) => {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify(results));
       }
-    });
-  };
+    },
+  );
+};
 
-
-  // DELETE
+// DELETE
 const deleteTicket = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -646,29 +652,26 @@ const deleteTicket = (req, res) => {
   });
 };
 
-
-
 // ------------------------------ USERS ------------------------------
 
 // GET
 const fetchExhibitions = (req, res) => {
-    pool.query("SELECT * FROM exhibitions", (error, results) => {
-      if (error) {
-        console.error("Error fetching exhibitions:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Internal server error" }));
-      } else {
-        console.log("Sending exhibitions:", results); // Log the fetched gift items
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(results));
-      }
-    });
-  };
-  
+  pool.query("SELECT * FROM exhibitions", (error, results) => {
+    if (error) {
+      console.error("Error fetching exhibitions:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Internal server error" }));
+    } else {
+      console.log("Sending exhibitions:", results); // Log the fetched gift items
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(results));
+    }
+  });
+};
 
-  // PUT
+// PUT
 const updateExhibition = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -689,7 +692,9 @@ const updateExhibition = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
@@ -701,10 +706,9 @@ const updateExhibition = (req, res) => {
   });
 };
 
-
 // POST
 const addExhibition = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -725,7 +729,9 @@ const addExhibition = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
@@ -739,7 +745,7 @@ const addExhibition = (req, res) => {
 
 // DELETE
 const deleteExhibition = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -760,7 +766,9 @@ const deleteExhibition = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
@@ -771,30 +779,27 @@ const deleteExhibition = (req, res) => {
     }
   });
 };
-
-
 
 // ------------------------------ COLLECTIONS ------------------------------
 
 // GET
 const fetchCollections = (req, res) => {
-    pool.query("SELECT * FROM collections", (error, results) => {
-      if (error) {
-        console.error("Error fetching collections:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Internal server error" }));
-      } else {
-        console.log("Sending collections:", results); // Log the fetched gift items
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(results));
-      }
-    });
-  };
-  
+  pool.query("SELECT * FROM collections", (error, results) => {
+    if (error) {
+      console.error("Error fetching collections:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Internal server error" }));
+    } else {
+      console.log("Sending collections:", results); // Log the fetched gift items
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(results));
+    }
+  });
+};
 
-  // PUT
+// PUT
 const updateCollection = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -815,7 +820,9 @@ const updateCollection = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
@@ -827,10 +834,9 @@ const updateCollection = (req, res) => {
   });
 };
 
-
 // POST
 const addCollection = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -851,7 +857,9 @@ const addCollection = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
@@ -865,7 +873,7 @@ const addCollection = (req, res) => {
 
 // DELETE
 const deleteCollection = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -886,7 +894,9 @@ const deleteCollection = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
@@ -897,29 +907,27 @@ const deleteCollection = (req, res) => {
     }
   });
 };
-
 
 // ------------------------------ EMPLOYEES ------------------------------
 
 // GET
 const fetchEmployees = (req, res) => {
-    pool.query("SELECT * FROM employees", (error, results) => {
-      if (error) {
-        console.error("Error fetching employees:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Internal server error" }));
-      } else {
-        console.log("Sending employees:", results); // Log the fetched gift items
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(results));
-      }
-    });
-  };
-  
+  pool.query("SELECT * FROM employees", (error, results) => {
+    if (error) {
+      console.error("Error fetching employees:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Internal server error" }));
+    } else {
+      console.log("Sending employees:", results); // Log the fetched gift items
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(results));
+    }
+  });
+};
 
-  // PUT
+// PUT
 const updateEmployee = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -940,7 +948,9 @@ const updateEmployee = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
@@ -952,10 +962,9 @@ const updateEmployee = (req, res) => {
   });
 };
 
-
 // POST
 const addEmployee = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -976,7 +985,9 @@ const addEmployee = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
@@ -990,7 +1001,7 @@ const addEmployee = (req, res) => {
 
 // DELETE
 const deleteEmployee = (req, res) => {
-    let body = "";
+  let body = "";
 
   req.on("data", (chunk) => {
     body += chunk.toString();
@@ -1011,7 +1022,9 @@ const deleteEmployee = (req, res) => {
             res.end(JSON.stringify({ message: "Internal server error" }));
           } else {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Exhibitions deleted successfully" }));
+            res.end(
+              JSON.stringify({ message: "Exhibitions deleted successfully" }),
+            );
           }
         },
       );
