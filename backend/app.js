@@ -1,5 +1,5 @@
 const http = require('http');
-const url = require('url');
+const { parse } = require("url");
 const mysql = require("mysql");
 
 // Connect To Database
@@ -25,7 +25,7 @@ const server = http.createServer((req, res) => {
     
     // Handle Cors Function To Allow Axios
     handleCors(req, res);
-    
+
     const { pathname } = parse(req.url);
 
     // GET Requests 
