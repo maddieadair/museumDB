@@ -15,7 +15,7 @@ export default function ShopStore() {
   console.log('Gift items:', giftItems); // Log fetched items to verify
 
   // Function to fetch gift items from backend
-  const fetchGiftItems = () => {
+  const fetchGiftItems = async () => {
     // Make a GET request to fetch gift items from backend
         // Make sure you're using the correct endpoint URL to fetch gift items
       axios.get("https://museum-db-685cb96aee8e.herokuapp.com/api/gift-items")

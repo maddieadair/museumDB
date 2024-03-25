@@ -30,7 +30,7 @@ const server = http.createServer((req, res) => {
       "<html><head><title>Hello, Worlds!</title></head><body><h1>Hello, World!</h1></body></html>",
     );
     res.end();
-  } else if (req.url === "/api/update-gift-items" && req.method === "PUT") {
+  } else if (req.url === "/api/gift-items" && req.method === "PUT") {
     updateGiftItems(req, res);
   } else if (req.url === "/api/gift-items" && req.method === "GET") {
     fetchGiftItems(req, res);
@@ -38,7 +38,7 @@ const server = http.createServer((req, res) => {
     fetchDonations(req, res);
   } else if (req.url === "/api/donations" && req.method === "PUT") {
     updateDonation(req, res);
-  } else if (req.url === "/apis/donations" && req.method === "POST") {
+  } else if (req.url === "/api/donations" && req.method === "POST") {
     addDonation(req, res);
   } else if (req.url === "/api/users" && req.method === "GET") {
     fetchUsers(req, res);
