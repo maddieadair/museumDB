@@ -42,8 +42,14 @@ const server = http.createServer((req, res) => {
   const { pathname } = parse(req.url);
 
   console.log("Incoming request:", req.method, pathname); // Log incoming requests
-
-    if (pathname === "/api/update-gift-items" && req.method === "PUT") {
+  if (pathname === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Hello, world!');
+  }  else if (pathname === '/about') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('About page');
+  }
+    else if (pathname === "/api/update-gift-items" && req.method === "PUT") {
     updateGiftItems(req, res);
   } else if (pathname === "/api/gift-items" && req.method === "GET") {
     fetchGiftItems(req, res);
