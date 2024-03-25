@@ -3,7 +3,7 @@ const url = require('url');
 const mysql = require("mysql");
 
 // Connect To Database
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: "mysql-museum.mysql.database.azure.com",
     user: "admin01",
     password: "bananafish1!",
